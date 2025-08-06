@@ -82,7 +82,7 @@ jobs:
         uses: helm/kind-action@v1.8.0
         with:
           cluster_name: ${{ env.CLUSTER_NAME }}
-          wait: true
+          wait: 120s
 
       - name: Deploy to Staging namespace
         run: |
@@ -110,7 +110,7 @@ jobs:
         uses: helm/kind-action@v1.8.0
         with:
           cluster_name: ${{ env.CLUSTER_NAME }}
-          wait: true
+          wait: 120s
 
       - name: Deploy to Prod namespace
         run: |
