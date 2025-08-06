@@ -57,7 +57,7 @@ jobs:
       - name: Deploy to Dev namespace
         if: ${{ github.event.inputs.dry_run != 'true' }}
         run: |
-          helm upgrade --install rickmorty-app ./helm-chart \
+          helm upgrade --install dev ./helm-chart \
             --namespace dev --create-namespace \
             --wait --timeout 120s \
             -f helm-chart/values-dev.yaml \
@@ -67,7 +67,7 @@ jobs:
       - name: Health check for Dev
         if: ${{ github.event.inputs.dry_run != 'true' }}
         run: |
-          kubectl rollout status deployment rickmorty-app -n dev
+          kubectl rollout status deployment rickmorty-app-dev -n dev
           kubectl port-forward svc/rickmorty-app -n dev 8000 & sleep 5
           curl -f http://localhost:8000/healthz
 
@@ -86,7 +86,7 @@ jobs:
 
       - name: Deploy to Staging namespace
         run: |
-          helm upgrade --install rickmorty-app ./helm-chart \
+          helm upgrade --install stage ./helm-chart \
             --namespace staging --create-namespace \
             --wait --timeout 120s \
             -f helm-chart/values-stg.yaml \
@@ -95,7 +95,7 @@ jobs:
 
       - name: Health check for Staging
         run: |
-          kubectl rollout status deployment rickmorty-app -n staging
+          kubectl rollout status deployment rickmorty-app-stage -n staging
           kubectl port-forward svc/rickmorty-app -n staging 8000 & sleep 5
           curl -f http://localhost:8000/healthz
 
@@ -114,7 +114,7 @@ jobs:
 
       - name: Deploy to Prod namespace
         run: |
-          helm upgrade --install rickmorty-app ./helm-chart \
+          helm upgrade --install prod ./helm-chart \
             --namespace prod --create-namespace \
             --wait --timeout 120s \
             -f helm-chart/values-prod.yaml \
@@ -123,7 +123,7 @@ jobs:
 
       - name: Health check for Prod
         run: |
-          kubectl rollout status deployment rickmorty-app -n prod
+          kubectl rollout status deployment rickmorty-app-prod -n prod
           kubectl port-forward svc/rickmorty-app -n prod 8000 & sleep 5
           curl -f http://localhost:8000/healthz
 
