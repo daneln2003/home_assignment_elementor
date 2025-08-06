@@ -1,7 +1,7 @@
 replicaCount: 1
 
 image:
-  repository: daneln2003/home_assignment_elementor
+  repository: danelnas/rickmorty-app
   tag: latest
   pullPolicy: IfNotPresent
 
