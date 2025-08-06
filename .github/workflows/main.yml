@@ -57,7 +57,7 @@ jobs:
       - name: Deploy to Dev namespace
         if: ${{ github.event.inputs.dry_run != 'true' }}
         run: |
-          helm upgrade --install rickmorty-dev ./helm-chart \
+          helm upgrade --install rickmorty-app ./helm-chart \
             --namespace dev --create-namespace \
             --wait --timeout 120s \
             -f helm-chart/values-dev.yaml \
@@ -86,7 +86,7 @@ jobs:
 
       - name: Deploy to Staging namespace
         run: |
-          helm upgrade --install rickmorty-stg ./helm-chart \
+          helm upgrade --install rickmorty-app ./helm-chart \
             --namespace staging --create-namespace \
             --wait --timeout 120s \
             -f helm-chart/values-stg.yaml \
@@ -114,7 +114,7 @@ jobs:
 
       - name: Deploy to Prod namespace
         run: |
-          helm upgrade --install rickmorty-prod ./helm-chart \
+          helm upgrade --install rickmorty-app ./helm-chart \
             --namespace prod --create-namespace \
             --wait --timeout 120s \
             -f helm-chart/values-prod.yaml \
