@@ -1,0 +1,129 @@
+name: CI/CD Pipeline
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+    inputs:
+      dry_run:
+        description: "Dry run (no deploy)"
+        required: false
+        default: "false"
+
+env:
+  IMAGE_NAME: danelnas/rickmorty-app
+  IMAGE_TAG: ${{ github.run_number }}
+  CLUSTER_NAME: elementor-cluster
+
+jobs:
+  build:
+    name: Build & Push Docker Image
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout source code
+        uses: actions/checkout@v3
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Login to Docker Hub
+        uses: docker/login-action@v3
+        with:
+          username: ${{ secrets.DOCKER_USERNAME }}
+          password: ${{ secrets.DOCKER_PASSWORD }}
+
+      - name: Build and push image
+        run: |
+          docker build -t $IMAGE_NAME:$IMAGE_TAG .
+          docker push $IMAGE_NAME:$IMAGE_TAG
+          echo "IMAGE_TAG=$IMAGE_TAG" >> $GITHUB_ENV
+
+  deploy-dev:
+    name: Deploy to Dev
+    needs: build
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v3
+
+      - name: Set up Kind cluster
+        uses: helm/kind-action@v1.8.0
+        with:
+          cluster_name: ${{ env.CLUSTER_NAME }}
+
+      - name: Set up Helm
+        uses: azure/setup-helm@v3
+
+      - name: Deploy to Dev namespace
+        if: ${{ github.event.inputs.dry_run != 'true' }}
+        run: |
+          helm upgrade --install rickmorty-dev ./helm-chart \
+            --namespace dev --create-namespace \
+            --wait --timeout 120s \
+            -f helm-chart/values-dev.yaml \
+            --set image.repository=$IMAGE_NAME \
+            --set image.tag=$IMAGE_TAG
+
+      - name: Health check for Dev
+        if: ${{ github.event.inputs.dry_run != 'true' }}
+        run: |
+          kubectl rollout status deployment rickmorty-app -n dev
+          kubectl port-forward svc/rickmorty-app -n dev 8000 & sleep 5
+          curl -f http://localhost:8000/healthz
+
+  deploy-staging:
+    name: Deploy to Staging
+    needs: deploy-dev
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Use existing Kind cluster
+        uses: helm/kind-action@v1.8.0
+        with:
+          cluster_name: ${{ env.CLUSTER_NAME }}
+          wait: true
+
+      - name: Deploy to Staging namespace
+        run: |
+          helm upgrade --install rickmorty-stg ./helm-chart \
+            --namespace staging --create-namespace \
+            --wait --timeout 120s \
+            -f helm-chart/values-stg.yaml \
+            --set image.repository=$IMAGE_NAME \
+            --set image.tag=$IMAGE_TAG
+
+      - name: Health check for Staging
+        run: |
+          kubectl rollout status deployment rickmorty-app -n staging
+          kubectl port-forward svc/rickmorty-app -n staging 8000 & sleep 5
+          curl -f http://localhost:8000/healthz
+
+  deploy-prod:
+    name: Deploy to Prod
+    needs: deploy-staging
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Use existing Kind cluster
+        uses: helm/kind-action@v1.8.0
+        with:
+          cluster_name: ${{ env.CLUSTER_NAME }}
+          wait: true
+
+      - name: Deploy to Prod namespace
+        run: |
+          helm upgrade --install rickmorty-prod ./helm-chart \
+            --namespace prod --create-namespace \
+            --wait --timeout 120s \
+            -f helm-chart/values-prod.yaml \
+            --set image.repository=$IMAGE_NAME \
+            --set image.tag=$IMAGE_TAG
+
+      - name: Health check for Prod
+        run: |
+          kubectl rollout status deployment rickmorty-app -n prod
+          kubectl port-forward svc/rickmorty-app -n prod 8000 & sleep 5
+          curl -f http://localhost:8000/healthz
+
