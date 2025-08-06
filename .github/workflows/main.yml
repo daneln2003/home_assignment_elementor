@@ -68,7 +68,7 @@ jobs:
         if: ${{ github.event.inputs.dry_run != 'true' }}
         run: |
           kubectl rollout status deployment rickmorty-app-dev -n dev
-          kubectl port-forward svc/rickmorty-app -n dev 8000 & sleep 5
+          kubectl port-forward svc/rickmorty-app-dev -n dev 8000 & sleep 5
           curl -f http://localhost:8000/healthz
 
   deploy-staging:
@@ -96,7 +96,7 @@ jobs:
       - name: Health check for Staging
         run: |
           kubectl rollout status deployment rickmorty-app-stage -n staging
-          kubectl port-forward svc/rickmorty-app -n staging 8000 & sleep 5
+          kubectl port-forward svc/rickmorty-app-stage -n staging 8000 & sleep 5
           curl -f http://localhost:8000/healthz
 
   deploy-prod:
@@ -124,6 +124,6 @@ jobs:
       - name: Health check for Prod
         run: |
           kubectl rollout status deployment rickmorty-app-prod -n prod
-          kubectl port-forward svc/rickmorty-app -n prod 8000 & sleep 5
+          kubectl port-forward svc/rickmorty-app-prod -n prod 8000 & sleep 5
           curl -f http://localhost:8000/healthz
 
