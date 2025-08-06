@@ -1,5 +1,5 @@
 {{- define "rickmorty-app.name" -}}
-{{ .Chart.Name }}
+rickmorty-app
 {{- end }}
 
 {{- define "rickmorty-app.fullname" -}}
