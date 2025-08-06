@@ -1,7 +1,7 @@
 {{- define "rickmorty-app.name" -}}
-rickmorty-app
+{{ .Chart.Name }}
 {{- end }}
 
 {{- define "rickmorty-app.fullname" -}}
-{{ .Release.Name }}-{{ .Chart.Name }}
+{{ .Chart.Name }}-{{ .Release.Name }}
 {{- end }}
