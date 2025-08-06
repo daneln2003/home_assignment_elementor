@@ -1,0 +1,30 @@
+replicaCount: 1
+
+resources:
+  limits:
+    cpu: 100m
+    memory: 128Mi
+  requests:
+    cpu: 50m
+    memory: 64Mi
+
+image:
+  tag: latest
+
+tolerations: []
+affinity: {}
+nodeSelector: {}  
+
+ingress:
+  enabled: true
+  className: nginx
+  annotations:
+    nginx.ingress.kubernetes.io/rewrite-target: /
+  hosts:
+    - host: rickmorty.local
+      paths:
+        - path: /
+          pathType: Prefix
+
+autoscaling:
+  enabled: false

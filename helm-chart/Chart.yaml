@@ -1,0 +1,5 @@
+apiVersion: v2
+name: rickmorty-app
+description: A simple Rick and Morty microservice
+version: 0.1.0
+appVersion: "1.0"

@@ -1,0 +1,33 @@
+replicaCount: 3
+
+resources:
+  limits:
+    cpu: 500m
+    memory: 512Mi
+  requests:
+    cpu: 250m
+    memory: 256Mi
+
+image:
+  tag: prod
+
+tolerations: []
+affinity: {}
+nodeSelector: {}  
+
+ingress:
+  enabled: true
+  className: nginx
+  annotations:
+    nginx.ingress.kubernetes.io/rewrite-target: /
+  hosts:
+    - host: rickmorty.elementor.com
+      paths:
+        - path: /
+          pathType: Prefix
+
+autoscaling:
+  enabled: true
+  minReplicas: 3
+  maxReplicas: 6
+  targetCPUUtilizationPercentage: 50
