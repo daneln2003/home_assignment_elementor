@@ -2,17 +2,17 @@
 
 This project implements a minimal microservice that fetches and filters Rick and Morty characters and demonstrates full DevOps practices — including containerization, Helm packaging, and a GitHub Actions CI/CD pipeline.
 
-## 🚀 Features
+## Features
 
-- ✅ Python FastAPI microservice  
-- ✅ Filters alive **human characters** from **Earth**  
-- ✅ `/characters`, `/healthz`, and `/metrics` endpoints  
-- ✅ Dockerized with non-root user & multi-stage build  
-- ✅ Helm chart with production-ready configs (HPA, resources, tolerations, etc.)  
-- ✅ CI/CD pipeline: dev → staging → production using **Kind** (local Kubernetes)  
-- ✅ Manual approval gates for staging and production  
+-  Python FastAPI microservice  
+- Filters alive **human characters** from **Earth**  
+- `/characters`, `/healthz`, and `/metrics` endpoints  
+- Dockerized with non-root user & multi-stage build  
+- Helm chart with production-ready configs (HPA, resources, tolerations, etc.)  
+- CI/CD pipeline: dev → staging → production using **Kind** (local Kubernetes)  
+- Manual approval gates for staging and production  
 
-## 📁 Project Structure
+## Project Structure
 
 ```
 .
@@ -30,7 +30,7 @@ This project implements a minimal microservice that fetches and filters Rick and
 └── README.md
 ```
 
-## 🧠 Endpoints
+## Endpoints
 
 | Endpoint      | Purpose                                             |
 |---------------|-----------------------------------------------------|
@@ -38,7 +38,7 @@ This project implements a minimal microservice that fetches and filters Rick and
 | `/metrics`    | Exposes Prometheus metric (`characters_fetched_total`) |
 | `/healthz`    | Simple health check (returns 200 OK)                |
 
-## 🐍 Local Development
+## Local Development
 
 Install dependencies:
 
@@ -59,7 +59,7 @@ Then test:
 - http://localhost:8000/metrics  
 - http://localhost:8000/healthz
 
-## 🐳 Docker
+## Docker
 
 Build the image:
 
@@ -73,7 +73,7 @@ Run it:
 docker run -p 8000:8000 rickmorty-app
 ```
 
-## ⚙️ Helm Deployment (Local or Remote)
+## Helm Deployment (Local or Remote)
 
 Install to a local Kubernetes cluster (e.g. kind or minikube):
 
@@ -88,8 +88,9 @@ helm upgrade --install rickmorty-app ./helm-chart -f helm-chart/values-stg.yaml
 helm upgrade --install rickmorty-app ./helm-chart -f helm-chart/values-prod.yaml
 ```
 
-## 🤖 CI/CD Pipeline (GitHub Actions)
+## CI/CD Pipeline (GitHub Actions)
 
+The pipeline triggers on every push to main.
 The pipeline includes 4 stages:
 
 1. **Build**
@@ -101,7 +102,7 @@ The pipeline includes 4 stages:
    - Deploys to `dev` namespace
    - Validates with rollout and `/healthz`
 
-3. **Deploy to Staging** *(manual approval)*
+3. **Deploy to Staging** 
    - Uses Helm with `values-stg.yaml`
    - Deploys to `staging` namespace after Dev succeeds
 
@@ -112,9 +113,9 @@ The pipeline includes 4 stages:
 ### Environments
 
 - Manual approvals are enforced via GitHub **Environments**
-- Create `staging` and `prod` environments in the repo Settings → Environments
+- Create 'dev', `staging` and `prod` environments in the repo Settings → Environments
 
-## 🛡️ Security & Best Practices
+## Security & Best Practices
 
 - Non-root Docker user  
 - Multi-stage Docker build  
@@ -125,34 +126,12 @@ The pipeline includes 4 stages:
 - Readiness and liveness probes
 - Separated values files for `dev`, `staging`, and `prod`
 
-## 📦 Example: values-stg.yaml
 
-```yaml
-replicaCount: 2
-
-autoscaling:
-  enabled: true
-  minReplicas: 2
-  maxReplicas: 4
-
-ingress:
-  enabled: true
-  className: nginx
-  hosts:
-    - host: rickmorty-stg.local
-      paths:
-        - path: /
-          pathType: Prefix
-```
-
-## 🔒 GitHub Secrets Required
+## GitHub Secrets Required
 
 | Secret Name       | Description              |
 |-------------------|--------------------------|
 | `DOCKER_USERNAME` | Docker Hub username      |
 | `DOCKER_PASSWORD` | Docker Hub token/password |
 
-## 👨‍💻 Author
-
-This solution was implemented as part of the Elementor DevOps Engineer Assignment.  
-All CI/CD, Kubernetes, and application components were created from scratch.
+```
